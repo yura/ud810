@@ -1,0 +1,17 @@
+Q1. d. Which looks more like what you’d expect a monochrome image to look like? Would you expect a computer vision algorithm to work on one better than the other?
+
+    Red channel image looks better, because it is light. Not sure we have CV algorithms here.
+
+Q4. d. What do negative pixel values mean anyways?
+
+    Intensity of deduction pixel is greater.
+
+Q5.
+    a. What is the value of sigma you had to use?
+
+    Sigma = 7.
+
+    c. Which looks better? Why?
+
+    Blue looks better. No visible noise at all. Why? Maybe something with green coding/green perception?
+
