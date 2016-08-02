@@ -11,7 +11,7 @@ langs = { cpp: 'cpp', octave: 'm', python: 'py', ruby: 'rb' }
 
 langs.each do |lang, extension|
   project_name = "ps#{ps_number}"
-  project_dir = "#{project_name}_#{lang}"
+  project_dir = "#{project_name}/#{project_name}_#{lang}"
   FileUtils::mkdir_p "#{project_dir}/input"
   FileUtils::mkdir_p "#{project_dir}/output"
 
