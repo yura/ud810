@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cv2
+import numpy as np
 
 # Problem Set 0: Images as Functions
 # https://docs.google.com/document/d/1PO9SuHMYhx6nDbB38ByB1QANasP1UaEiXaeGeHmp3II/pub
@@ -38,91 +39,67 @@ cv2.imwrite("output/ps0-2-c-1.png", img1_red)
 # a. Take the inner center square region of 100x100 pixels of monochrome version of image 1 and insert them into the center of monochrome version of image 2
 #    Output: Store the new image created as ps0-3-a-1.png
 height, width = img1.shape[:2]
-x_offset = (w - 100)/2;
-y_offset = (h - 100)/2;
+x_offset = (width - 100)/2;
+y_offset = (height - 100)/2;
 
+img_with_center = img1_green.copy()
 center = img1_red[y_offset:y_offset+100, x_offset:x_offset+100]
-img_with_center = img1_green;
-img_with_center(y_offset:y_offset+100, x_offset:x_offset+100) = center;
-imwrite(img_with_center, "output/ps0-3-a-1.png");
+img_with_center[y_offset:y_offset+100, x_offset:x_offset+100] = center
+cv2.imwrite("output/ps0-3-a-1.png", img_with_center)
+
+# 4: Arithmetic and Geometric operations
+
+# a. What is the min and max of the pixel values of img1_green? What is the mean? What is the standard deviation?  And how did you compute these?
+
+# Min
+green_min = img1_green.min()
+print("Min: ", green_min)
+
+# Max
+green_max = img1_green.max()
+print("Max: ", green_max)
+
+# Mean
+green_mean = img1_green.mean()
+print("Mean: ", green_mean)
+
+# Standard deviation
+green_std = img1_green.std()
+print("Standard deviation: ", green_std)
+
+# b. Subtract the mean from all pixels, then divide by standard deviation, then multiply by 10 (if your image is 0 to 255) or by 0.05 (if your image ranges from 0.0 to 1.0). Now add the mean back in.
+#    Output: ps0-4-b-1.png
+calculated = (img1 - img1.mean()) / img1.std() * 10 + img1.mean()
+# it looks better than octave's result because it casts type to float64
+cv2.imwrite("output/ps0-4-b-1.png", calculated)
+
+# c. Shift img1_green to the left by 2 pixels.
+#    Output: ps0-4-c-1.png
+# TODO: how to use filter2D to shift?
+#shift_filter = np.zeros((5, 5), np.uint8)
+#shift_filter[2, 4] = 1
+#shifted_green = cv2.filter2D(img1_green, -1, shift_filter)
+#cv2.imwrite("output/ps0-4-c-1.png", shifted_green)
+
+shift_filter = np.float32([[1, 0, -2], [0, 1, 0]])
+shifted_green = cv2.warpAffine(img1_green, shift_filter, (width, height))
+cv2.imwrite("output/ps0-4-c-1.png", shifted_green)
+
+# d. Subtract the shifted version of img1_green from the original, and save the difference image.
+#    Output: ps0-4-d-1.png (make sure that the values are legal when you write the image so that you can see all relative differences), text response: What do negative pixel values mean anyways?
+
+# TODO: can't just (img1_green - shifted_green) + (shifted_green - img1_green)?
+diff = np.zeros(img1_green.shape, np.uint8)
+for i in range(height):
+  for j in range(width):
+    if img1_green[i][j] > shifted_green[i][j]:
+      diff[i][j] = img1_green[i][j] - shifted_green[i][j]
+    else:
+      diff[i][j] = shifted_green[i][j] - img1_green[i][j]
+
+cv2.imwrite("output/ps0-4-d-1.png", diff)
 
 '''
-% 4: Arithmetic and Geometric operations
-
-% a. What is the min and max of the pixel values of img1_green? What is the mean? What is the standard deviation?  And how did you compute these?
-
-% Min
-
-%{
-% DIY version
-values = img1_green(:);
-green_min = values(1);
-for i = values(2:1:end)';
-  if (i < green_min)
-    green_min = i
-  endif
-endfor
-green_min
-%}
-
-% Lib call
-green_min = min(img1_green(:));
-disp("Min: "), disp(green_min);
-
-% Max
-
-%{
-% DIY version
-values = reshape(img1_green, 1, []);
-green_max = values(1);
-for i = values(2:1:end);
-  if (i > green_max)
-    green_max = i;
-  endif
-endfor
-%}
-
-% Lib call
-green_max = max(img1_green(:));
-disp("Max: "), disp(green_max);
-
-% Mean
-
-%{
-% DIY version
-green_mean = sum(img1_green(:))/length(img1_green(:));
-%}
-
-% Lib call
-green_mean = mean(img1_green(:));
-disp("Mean: "), disp(green_mean);
-
-% Standard deviation
-
-% Lib call
-green_std = std(img1_green(:));
-disp("Standard deviation: "), disp(green_std);
-
-% b. Subtract the mean from all pixels, then divide by standard deviation, then multiply by 10 (if your image is 0 to 255) or by 0.05 (if your image ranges from 0.0 to 1.0). Now add the mean back in.
-%    Output: ps0-4-b-1.png
-imwrite(((img1 - mean(img1(:))) / std(img1(:)) * 10 + mean(img1(:))), "output/ps0-4-b-1.png");
-disp("All mean:"), disp(mean(img1(:)));
-disp("All std:"), disp(std(img1(:)));
-imwrite(img1 - mean(img1(:)), 'output/test.png');
-
-% c. Shift img1_green to the left by 2 pixels.
-%    Output: ps0-4-c-1.png
-shift_filter = zeros(5, 5);
-shift_filter(3, 5) = 1;
-
-pkg load image;
-shifted_green = imfilter(img1_green, shift_filter);
-imwrite(shifted_green, "output/ps0-4-c-1.png");
-
-% d. Subtract the shifted version of img1_green from the original, and save the difference image.
-%    Output: ps0-4-d-1.png (make sure that the values are legal when you write the image so that you can see all relative differences), text response: What do negative pixel values mean anyways?
-imwrite(((img1_green - shifted_green) + (shifted_green - img1_green)) , "output/ps0-4-d-1.png");
-
 % 5: Noise
 
 % a. Take the original colored image (image 1) and start adding Gaussian noise to the pixels in the green channel. Increase sigma until the noise is somewhat visible.
