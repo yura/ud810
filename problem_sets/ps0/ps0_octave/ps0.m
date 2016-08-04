@@ -115,6 +115,9 @@ disp("Standard deviation: "), disp(green_std);
 % b. Subtract the mean from all pixels, then divide by standard deviation, then multiply by 10 (if your image is 0 to 255) or by 0.05 (if your image ranges from 0.0 to 1.0). Now add the mean back in.
 %    Output: ps0-4-b-1.png
 imwrite(((img1 - mean(img1(:))) / std(img1(:)) * 10 + mean(img1(:))), "output/ps0-4-b-1.png");
+disp("All mean:"), disp(mean(img1(:)));
+disp("All std:"), disp(std(img1(:)));
+imwrite(img1 - mean(img1(:)), 'output/test.png');
 
 % c. Shift img1_green to the left by 2 pixels.
 %    Output: ps0-4-c-1.png

@@ -23,11 +23,9 @@ img2.save_image('output/ps0-1-a-2.png')
 
 # a. Swap the red and blue pixels of image 1
 #    Output: Store as ps0-2-a-1.png in the output folder
-
 img1_blue, img1_green, img1_red = img1.split
 swapped = Cv.merge([ img1_red, img1_green, img1_blue ])
 swapped.save('output/ps0-2-a-1.png')
-
 
 # b. Create a monochrome image (img1_green) by selecting the green channel of image 1
 #    Output: ps0-2-b-1.png
@@ -41,77 +39,62 @@ img1_red.save("output/ps0-2-c-1.png")
 
 # a. Take the inner center square region of 100x100 pixels of monochrome version of image 1 and insert them into the center of monochrome version of image 2
 #    Output: Store the new image created as ps0-3-a-1.png
-[ h, w, p ] = size(img1);
-x_offset = (w - 100)/2;
-y_offset = (h - 100)/2;
+width = img1.cols
+height = img1.rows
+x_offset = (width - 100) / 2
+y_offset = (height - 100) / 2
 
-center = img1_red(y_offset:y_offset+100, x_offset:x_offset+100);
-img_with_center = img1_green;
-img_with_center(y_offset:y_offset+100, x_offset:x_offset+100) = center;
-imwrite(img_with_center, "output/ps0-3-a-1.png");
+img_with_center = img1_green.clone
+(0...100).each do |i|
+  (0...100).each do |j|
+    img_with_center[i + y_offset, j + x_offset] = img1_red[i + y_offset, j + x_offset]
+  end
+end
+
+img_with_center.save("output/ps0-3-a-1.png")
+
+# 4: Arithmetic and Geometric operations
+
+# a. What is the min and max of the pixel values of img1_green? What is the mean? What is the standard deviation?  And how did you compute these?
+
+# Min
+green_pixels = (0...img1_green.rows).map { |i| (0...img1_green.cols).map { |j| img1_green[i,j][0] } }.flatten
+green_min = green_pixels.min
+puts "Min: #{green_min}"
+
+# Max
+green_max = green_pixels.max
+puts "Max: #{green_max}"
+
+# To have possibility to calculate mean and standard deviation, better to path Enumerable module:
+require './enumerable_patch'
+
+# Mean
+
+green_mean = green_pixels.mean
+puts "Mean: #{green_mean}"
+
+# Standard deviation
+
+green_std = green_pixels.standard_deviation
+puts "Standard deviation: #{green_std}"
+
+# b. Subtract the mean from all pixels, then divide by standard deviation, then multiply by 10 (if your image is 0 to 255) or by 0.05 (if your image ranges from 0.0 to 1.0). Now add the mean back in.
+#    Output: ps0-4-b-1.png
+all_pixels = (0...img1.rows).map { |i| (0...img1.cols).map { |j| img1[i,j].to_a[0..2] } }.flatten
+mean = all_pixels.mean
+std = all_pixels.standard_deviation
+
+puts "All mean: #{mean}"
+puts "All std: #{std}"
+
+# looks like ruby-opencv has a bug:
+# https://github.com/ruby-opencv/ruby-opencv/issues/82
+(img1 - mean).save("output/test.png")
+
+#((img1 - mean) / std * 10 + mean).save("output/ps0-4-b-1.png")
 
 =begin
-
-% 4: Arithmetic and Geometric operations
-
-% a. What is the min and max of the pixel values of img1_green? What is the mean? What is the standard deviation?  And how did you compute these?
-
-% Min
-
-%{
-% DIY version
-values = img1_green(:);
-green_min = values(1);
-for i = values(2:1:end)';
-  if (i < green_min)
-    green_min = i
-  endif
-endfor
-green_min
-%}
-
-% Lib call
-green_min = min(img1_green(:));
-disp("Min: "), disp(green_min);
-
-% Max
-
-%{
-% DIY version
-values = reshape(img1_green, 1, []);
-green_max = values(1);
-for i = values(2:1:end);
-  if (i > green_max)
-    green_max = i;
-  endif
-endfor
-%}
-
-% Lib call
-green_max = max(img1_green(:));
-disp("Max: "), disp(green_max);
-
-% Mean
-
-%{
-% DIY version
-green_mean = sum(img1_green(:))/length(img1_green(:));
-%}
-
-% Lib call
-green_mean = mean(img1_green(:));
-disp("Mean: "), disp(green_mean);
-
-% Standard deviation
-
-% Lib call
-green_std = std(img1_green(:));
-disp("Standard deviation: "), disp(green_std);
-
-% b. Subtract the mean from all pixels, then divide by standard deviation, then multiply by 10 (if your image is 0 to 255) or by 0.05 (if your image ranges from 0.0 to 1.0). Now add the mean back in.
-%    Output: ps0-4-b-1.png
-imwrite(((img1 - mean(img1(:))) / std(img1(:)) * 10 + mean(img1(:))), "output/ps0-4-b-1.png");
-
 % c. Shift img1_green to the left by 2 pixels.
 %    Output: ps0-4-c-1.png
 shift_filter = zeros(5, 5);
