@@ -99,22 +99,20 @@ for i in range(height):
 
 cv2.imwrite("output/ps0-4-d-1.png", diff)
 
-'''
-% 5: Noise
+# 5: Noise
 
-% a. Take the original colored image (image 1) and start adding Gaussian noise to the pixels in the green channel. Increase sigma until the noise is somewhat visible.
-%    Output: ps0-5-a-1.png, text response: What is the value of sigma you had to use?
-noised_green = img1;
-noise = randn(size(img1_green)) * 7;
-noised_green(:,:,2) += noise;
-imwrite(noised_green, 'output/ps0-5-a-1.png');
+# a. Take the original colored image (image 1) and start adding Gaussian noise to the pixels in the green channel. Increase sigma until the noise is somewhat visible.
+#    Output: ps0-5-a-1.png, text response: What is the value of sigma you had to use?
+noised_green = np.array(img1.copy(), dtype=np.float64)
+noise = np.random.normal(0, 1, img1_green.shape[:2]) * 7
+noised_green[:, :, 1] += noise
+cv2.imwrite('output/ps0-5-a-1.png', noised_green)
 
-% b. Now, instead add that amount of noise to the blue channel.
-%    Output: ps0-5-b-1.png
-noised_blue = img1;
-noised_blue(:,:,3) += noise;
-imwrite(noised_blue, 'output/ps0-5-b-1.png');
+# b. Now, instead add that amount of noise to the blue channel.
+#    Output: ps0-5-b-1.png
+noised_blue = np.array(img1.copy(), dtype=np.float64)
+noised_blue[:, :, 0] += noise
+cv2.imwrite('output/ps0-5-b-1.png', noised_blue)
 
-% c. Which looks better? Why?
-%    Output: Text response
-'''
+# c. Which looks better? Why?
+#    Output: Text response
