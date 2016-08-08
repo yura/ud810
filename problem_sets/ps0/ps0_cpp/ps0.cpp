@@ -4,6 +4,7 @@
 */
 
 #include <opencv2/core/core.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 
@@ -77,6 +78,68 @@ int main(int argc, char** argv) {
   center.copyTo(img_with_center(rect));
 
   imwrite("output/ps0-3-a-1.png", img_with_center);
+
+  /*
+   4: Arithmetic and Geometric operations
+
+   a. What is the min and max of the pixel values of img1_green? What is the mean? What is the standard deviation?  And how did you compute these?
+   */
+
+  // Min and max
+  double min, max;
+  minMaxLoc(img1_green, &min, &max);
+
+  cout << "Min: " << min << endl;
+  cout << "Max: " << max << endl;
+
+  // Mean & standard deviation
+  Scalar green_mean, green_std;
+  meanStdDev(img1_green, green_mean, green_std);
+
+  cout << "Mean: " << green_mean[0] << endl;
+  cout << "Standard deviation: " << green_std[0] << endl;
+
+  /*
+   b. Subtract the mean from all pixels, then divide by standard deviation, then multiply by 10 (if your image is 0 to 255) or by 0.05 (if your image ranges from 0.0 to 1.0). Now add the mean back in.
+      Output: ps0-4-b-1.png
+   */
+  Scalar all_mean, all_std;
+  Mat calculated;
+  meanStdDev(img1, all_mean, all_std);
+
+  calculated = (img1 - all_mean) / all_std[0] * 10 + all_mean;
+  // TODO: result is differ from octave and python
+  //       1. check pixels at given position
+  //       2. convert to double http://stackoverflow.com/questions/14539498/change-type-of-mat-object-from-cv-32f-to-cv-8u
+  imwrite("output/ps0-4-b-1.png", calculated);
+
+  /* 
+   c. Shift img1_green to the left by 2 pixels.
+      Output: ps0-4-c-1.png
+   */
+
+  /*
+  // TODO: can't do that with filter2D
+  Mat shiftedGreen;
+  Mat kernel = Mat::zeros(5, 5, CV_8U);
+  kernel.at<uchar>(2,4) = 1;
+  cv::filter2D(img1_green, shiftedGreen, CV_8U, kernel);
+  */
+
+  Mat shiftFilter = (Mat_<double>(2, 3) << 1, 0, -2,
+                                         0, 1, 0);
+  Mat shiftedGreen;
+  warpAffine(img1_green, shiftedGreen, shiftFilter, Size(width, height));
+
+  imwrite("output/ps0-4-c-1.png", shiftedGreen);
+
+  /*
+   d. Subtract the shifted version of img1_green from the original, and save the difference image.
+      Output: ps0-4-d-1.png (make sure that the values are legal when you write the image so that you can see all relative differences), text response: What do negative pixel values mean anyways?
+   */
+  Mat diff;
+  diff = (img1_green - shiftedGreen) + (shiftedGreen - img1_green);
+  imwrite("output/ps0-4-d-1.png", diff);
 
   return 0;
 }
