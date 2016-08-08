@@ -141,5 +141,36 @@ int main(int argc, char** argv) {
   diff = (img1_green - shiftedGreen) + (shiftedGreen - img1_green);
   imwrite("output/ps0-4-d-1.png", diff);
 
+  /* 
+   5: Noise
+
+   a. Take the original colored image (image 1) and start adding Gaussian noise to the pixels in the green channel. Increase sigma until the noise is somewhat visible.
+      Output: ps0-5-a-1.png, text response: What is the value of sigma you had to use?
+   */
+  Mat noised_green = img1.clone();
+  noised_green.convertTo(noised_green, CV_64F);
+  split(noised_green, channels);
+
+  Mat noise(img1.size(), CV_64F);
+  randn(noise, 0, 7);
+
+  channels[1] += noise;
+
+  merge(channels, 3, noised_green);
+
+  imwrite("output/ps0-5-a-1.png", noised_green);
+
+  /*
+   b. Now, instead add that amount of noise to the blue channel.
+      Output: ps0-5-b-1.png
+   */
+  Mat noised_blue = img1.clone();
+  noised_blue.convertTo(noised_blue, CV_64F);
+  split(noised_blue, channels);
+  channels[0] += noise;
+  merge(channels, 3, noised_blue);
+
+  imwrite("output/ps0-5-b-1.png", noised_blue);
+
   return 0;
 }
